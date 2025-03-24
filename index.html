@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Penjualan Tiket Kapal Klotok Jawai</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background: green;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background: darkgreen;
+        }
+        .hidden {
+            display: none;
+        }
+        .logout {
+            background: red;
+            margin-top: 10px;
+        }
+        .logout:hover {
+            background: darkred;
+        }
+        .ship-img {
+            width: 100%;
+            border-radius: 10px;
+        }
+        .passenger-count {
+            font-weight: bold;
+            color: darkblue;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="loginPage">
+    <h2>Login</h2>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+</div>
+
+<div class="container hidden" id="orderPage">
+    <h2>Pesan Tiket Kapal</h2>
+    <img src="https://source.unsplash.com/600x300/?ship,boat" class="ship-img" alt="Kapal">
+    <p>Jumlah Penumpang Saat Ini: <span class="passenger-count" id="passengerCount">10</span> / 50</p>
+    
+    <select id="destination">
+        <option value="Jawai - Pemangkat" data-price="50000">Jawai - Pemangkat (Rp 50.000)</option>
+        <option value="Jawai - Pontianak" data-price="150000">Jawai - Pontianak (Rp 150.000)</option>
+        <option value="Jawai - Singkawang" data-price="120000">Jawai - Singkawang (Rp 120.000)</option>
+        <option value="Jawai - Sambas" data-price="80000">Jawai - Sambas (Rp 80.000)</option>
+    </select>
+    <input type="number" id="jumlah" placeholder="Jumlah Tiket" min="1" max="40">
+    <select id="paymentMethod">
+        <option value="Transfer Bank">Transfer Bank</option>
+        <option value="E-Wallet">E-Wallet</option>
+    </select>
+    <button onclick="orderTicket()">Pesan Tiket</button>
+    <button class="logout" onclick="logout()">Logout</button>
+</div>
+
+<div class="container hidden" id="ticketPage">
+    <h2>Tiket Berhasil Dipesan</h2>
+    <p><strong>Tujuan:</strong> <span id="ticketDestination"></span></p>
+    <p><strong>Jumlah Tiket:</strong> <span id="ticketJumlah"></span></p>
+    <p><strong>Metode Pembayaran:</strong> <span id="ticketPayment"></span></p>
+    <p><strong>Total Bayar:</strong> <span id="ticketPrice"></span></p>
+    <div class="qrcode">
+        <p>Scan QR untuk bukti pemesanan</p>
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=Tiket_Kapal_Klotok" alt="QR Code">
+    </div>
+    <button onclick="location.reload()">Selesai</button>
+</div>
+
+<script>
+    let users = [{ username: "admin", password: "admin123" }];
+    let passengerCount = 10;
+
+    function login() {
+        let username = document.getElementById("username").value;
+        let password = document.getElementById("password").value;
+
+        let user = users.find(u => u.username === username && u.password === password);
+
+        if (user) {
+            document.getElementById("loginPage").classList.add("hidden");
+            document.getElementById("orderPage").classList.remove("hidden");
+        } else {
+            alert("Username atau Password salah!");
+        }
+    }
+
+    function orderTicket() {
+        let destination = document.getElementById("destination").value;
+        let jumlah = parseInt(document.getElementById("jumlah").value);
+        let paymentMethod = document.getElementById("paymentMethod").value;
+
+        if (jumlah <= 0 || isNaN(jumlah)) {
+            alert("Jumlah tiket harus lebih dari 0!");
+            return;
+        }
+
+        if (passengerCount + jumlah > 50) {
+            alert("Kapal penuh! Sisa kursi hanya " + (50 - passengerCount));
+            return;
+        }
+
+        let selectedOption = document.getElementById("destination").options[document.getElementById("destination").selectedIndex];
+        let harga = parseInt(selectedOption.getAttribute("data-price"));
+        let totalHarga = harga * jumlah;
+
+        document.getElementById("ticketDestination").innerText = destination;
+        document.getElementById("ticketJumlah").innerText = jumlah;
+        document.getElementById("ticketPayment").innerText = paymentMethod;
+        document.getElementById("ticketPrice").innerText = "Rp " + totalHarga.toLocaleString();
+
+        passengerCount += jumlah;
+        document.getElementById("passengerCount").innerText = passengerCount;
+
+        document.getElementById("orderPage").classList.add("hidden");
+        document.getElementById("ticketPage").classList.remove("hidden");
+    }
+
+    function logout() {
+        passengerCount = 10;
+        document.getElementById("passengerCount").innerText = passengerCount;
+        document.getElementById("orderPage").classList.add("hidden");
+        document.getElementById("loginPage").classList.remove("hidden");
+    }
+</script>
+
+</body>
+</html>
